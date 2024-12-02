@@ -24,7 +24,7 @@ python collect_data.py --data_file ../../data/description_data.tsv --save_path .
 ### Download Gutenberg Books
 
 ```
-python books.py --data_file ../../data/books.tsv --save_path ../../data/corpus/
+python books.py --data_file ../../data/books.tsv --save_path ../../data/corpus/books
 ```
 
 ### Preprocess
@@ -44,3 +44,13 @@ python prepare_data.py --action split --dataset_path ../../data/corpus/descripti
 
 Code for experiments is coming soon.
 
+### Citation
+
+```
+@inproceedings{papoudakis2024bookworm,
+  title={BookWorm: A Dataset for Character Description and Analysis},
+  author={Papoudakis, Argyrios and Lapata, Mirella and Keller, Frank},
+  booktitle={Findings of the Association for Computational Linguistics: EMNLP 2024},
+  pages={4471--4500},
+  year={2024}
+}
