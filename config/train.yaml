@@ -1,0 +1,35 @@
+data_params:
+  data_path: "../../data/processed/description/full_book/"
+  prompt_path: "../../prompts/description_prompt.txt"
+
+train_params:
+  model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  max_input_length: 8192
+  truncate_length: 7600
+  batch_size: 1
+  lr: 2.5e-5
+  seed: 0
+  id: 0
+  max_steps: 4000
+  warm_up_steps: 100
+  logging_steps: 400
+  save_steps: 400
+  eval_steps: 400
+  weight_decay: 0.01
+  save_strategy: "steps"
+  gradient_accumulation_steps: 4
+  resume_from_checkpoint: False
+  apply_lora: True
+
+lora_params:
+  r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+
+
+experiment_params:
+  model: "Llama_fn"
+  experiment_name: "Lead"
+  save_experiment: ../../experiments/description/
+  num_workers: 8
+  wandb_project: "BookWorm"

@@ -1,0 +1,4 @@
+Analyse in-depth character: {character} by merging the following analyses into a single analysis.
+
+Analyses:
+{analyses}

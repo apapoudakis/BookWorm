@@ -1,0 +1,4 @@
+Describe character: {character} by merging the following descriptions into a single description.
+
+Descriptions:
+{descriptions}

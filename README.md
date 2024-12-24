@@ -42,7 +42,17 @@ python prepare_data.py --action split --dataset_path ../../data/corpus/descripti
 
 ### Experiments
 
-Code for experiments is coming soon.
+You can run the experiments of our paper and finetune a model by specifying the configuration file train.yaml and run the following command:
+
+```
+python finetune.py --config ../../config/train.yaml
+```
+
+You can run zero-shot or finetuned models using the following command:
+
+```
+python eval.py --config ../../config/eval.yaml
+```
 
 ### Citation
 

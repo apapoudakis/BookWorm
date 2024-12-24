@@ -1,0 +1,3 @@
+Describe character: {character} given the following context.
+
+Context: {context}

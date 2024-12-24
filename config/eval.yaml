@@ -1,0 +1,23 @@
+data_params:
+  data_path: "../../data/processed/description/full_book/"
+
+eval_params:
+  checkpoint_path: null  # provide null for zero-shot or checkpoint path
+  model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  save_path: ../../experiments/description/Llama/Lead
+  method: "truncate"
+  batch_size: 1
+  num_workers: 16
+  max_input_length: 8192
+  truncate_length: 7600
+  split: test
+
+generate_params:
+  do_sample: True
+  temperature: 0.4
+  # num_beams: 1
+  # min_new_tokens: 100
+  max_new_tokens: 110
+  # no_repeat_ngram_size: 2
+  # repetition_penalty: 1.1
+  # top_k: 50
