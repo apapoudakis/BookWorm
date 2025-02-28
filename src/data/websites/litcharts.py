@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup
+import time
 
 
 def scrape():
@@ -41,7 +42,7 @@ def get_data(book_id, title, author, url, data_type):
         raise ValueError(f"Invalid data_type: {data_type}")
 
 
-def get_character_description(book_id, title, author, url):
+def get_character_description(book_id, title, author, url, max_attempts=3):
     """
     Scrape character descriptions for a given url
     """
@@ -55,22 +56,40 @@ def get_character_description(book_id, title, author, url):
     soup = BeautifulSoup(page.content, "html.parser")
 
     chars_node = soup.find_all("a", class_="subcomponent tappable", string="All Characters")
+
     if chars_node:
         chars = chars_node[0].findNextSiblings("a", class_="subcomponent tappable")
-
         for c in chars:
-            char_name = c.text.strip()
-            character_url = "https://" + base_url + c["href"]
-            char_response = requests.get(character_url)
-            char_soup = BeautifulSoup(char_response.content, "html.parser")
-            description_node = char_soup.find_all("div", class_="highlightable-content")
+            # print(c)
+            num_attempts = 0
 
-            if description_node:
-                descr = description_node[0].text.strip()
+            # max_retries per character
+            # Keep trying until success or until we exceed max_retries
+            while num_attempts < max_attempts:
 
-                data.append(
-                    {"id": book_id, "book": title, "author": author, "character": char_name, "description": descr,
-                     "source": "LitCharts", "url": character_url})
+                try:
+                    char_name = c.text.strip()
+                    character_url = "https://" + base_url + c["href"]
+                    char_response = requests.get(character_url)
+                    char_soup = BeautifulSoup(char_response.content, "html.parser")
+                    description_node = char_soup.find_all("div", class_="highlightable-content")
+
+                    if description_node:
+                        descr = description_node[0].text.strip()
+
+                        data.append(
+                            {"id": book_id, "book": title, "author": author, "character": char_name, "description": descr,
+                             "source": "LitCharts", "url": character_url})
+                        break
+                except:
+                    print("wait")
+                    time.sleep(30)
+
+                    if num_attempts == max_attempts:
+                        raise ValueError("Failed to scrape character description")
+
+                num_attempts += 1
+
     return data
 
 
@@ -96,4 +115,3 @@ if __name__ == "__main__":
     output = get_data(1792, "Measure for Measure", "William Shakespeare",
                       "https://web.archive.org/web/20231207174120/https://www.litcharts.com/lit/measure-for-measure",
                       "description")
-    print(output)

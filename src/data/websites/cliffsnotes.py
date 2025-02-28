@@ -5,6 +5,8 @@ from urllib.parse import urljoin, urlsplit
 import requests
 from bs4 import BeautifulSoup
 
+from src.utils.misc import check_snapshot_date
+
 
 def scrape():
     """Scrape url links of Cliffnotes website"""
@@ -81,6 +83,9 @@ def get_character_description(book_id, title, author, url, max_attempts=5):
     Get character descriptions from the given URL
     """
     page = requests.get(url)
+    valid, edit_page = check_snapshot_date(page, url)
+    if not valid:
+        page = edit_page
     soup = BeautifulSoup(page.content, "html.parser")
     data = []
 
@@ -161,6 +166,10 @@ def get_character_analysis(book_id, title, author, url):
 
     data = []
     page = requests.get(url)
+    valid, edit_page = check_snapshot_date(page, url)
+    if not valid:
+        page = edit_page
+
     analysis_soup = BeautifulSoup(page.content, "html.parser")
 
     article = analysis_soup.find("article")

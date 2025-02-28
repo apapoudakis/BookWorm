@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
+from src.utils.misc import check_snapshot_date
+
 
 def scrape():
     """Scrape url links of Shmoop website"""
@@ -45,7 +47,6 @@ def get_data(book_id, title, author, url, data_type, max_attempts=3, sleep_time=
 
         char_urls, char_names = extract_char_analysis_urls(c_url)
         url_to_data = {}
-
         for i, _url in enumerate(char_urls):
             attempt = 0
             while attempt < max_attempts:
@@ -104,8 +105,11 @@ def get_character_analysis(book_id, title, author, url, char_name=None):
     Scrape character analysis from a given url
     """
     data = []
-
     page = requests.get(url)
+    valid, edit_page = check_snapshot_date(page, url)
+    if not valid:
+        page = edit_page
+
     soup = BeautifulSoup(page.content, "html.parser")
 
     analysis = ""

@@ -4,6 +4,8 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
+from src.utils.misc import check_snapshot_date
+
 
 def scrape():
     """Scrape url links of GradeSaver website"""
@@ -47,6 +49,9 @@ def get_character_description(book_id, title, author, url):
     """Retrieve character descriptions from the specified URL."""
 
     page = requests.get(url)
+    valid, edit_page = check_snapshot_date(page, url)
+    if not valid:
+        page = edit_page
 
     soup = BeautifulSoup(page.content, "html.parser")
     chars_nodes = soup.find_all("h2", class_="toc_header")

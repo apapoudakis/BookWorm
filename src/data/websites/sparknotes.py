@@ -3,6 +3,7 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
+from src.utils.misc import check_snapshot_date
 
 
 def scrape():
@@ -51,7 +52,10 @@ def get_data(book_id, title, author, base_url, data_type):
         char_urls = extract_char_analysis_urls(url, base_url)
         char_analysis = []
         for char_url in char_urls:
-            char_analysis.extend(get_character_analysis(book_id, title, author, char_url))
+            char_data = get_character_analysis(book_id, title, author, char_url)
+            if not char_data:
+                char_data = get_character_analysis(book_id, title, author, char_url.replace("character/", ""))
+            char_analysis.extend(char_data)
         return char_analysis
     elif data_type == "summary":
         summary_url = urllib.parse.urljoin(base_url, "summary")
@@ -64,6 +68,10 @@ def get_character_description(book_id, title, author, url):
     """
 
     page = requests.get(url)
+    valid, edit_page = check_snapshot_date(page, url)
+    if not valid:
+        page = edit_page
+
     soup = BeautifulSoup(page.content, "html.parser")
     data = []
 
@@ -104,7 +112,6 @@ def extract_char_analysis_urls(url, base_url):
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
-
     character_analysis_urls = []
 
     nodes = soup.find_all("a", recursive=True)
@@ -113,6 +120,7 @@ def extract_char_analysis_urls(url, base_url):
             _char_name = n["href"].rstrip('/').split('/')[-1]
 
             character_url = urllib.parse.urljoin(base_url + "character/", _char_name)
+            # character_url = urllib.parse.urljoin(base_url , _char_name)
 
             if character_url not in character_analysis_urls:
                 character_analysis_urls.append(character_url)
@@ -125,6 +133,9 @@ def get_character_analysis(book_id, title, author, url):
     Scrape character analysis from a given url
     """
     response = requests.get(url)
+    valid, edit_page = check_snapshot_date(response, url)
+    if not valid:
+        response = edit_page
     soup = BeautifulSoup(response.content, "html.parser")
     data = []
 

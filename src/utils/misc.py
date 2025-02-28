@@ -1,7 +1,11 @@
 import json
 import os
 import re
+from datetime import datetime
+
+import requests
 import yaml
+from dateutil.relativedelta import relativedelta  # Install via pip if needed
 
 
 def read_jsonl(file_path):
@@ -114,3 +118,51 @@ def load_template(method, task="description"):
             return general_prompt_template, merge_prompt_template
     else:
         raise ValueError("Invalid method given.")
+
+
+def check_snapshot_date(page, url, max_date=20241112000000):
+    """
+    Check if the snapshot of the scraped page is before the max_date (in case of new created snapshot which is sooner
+    than the originally used date). If not, find the closest previous snapshot.
+    """
+
+    max_date = datetime.strptime(str(max_date), "%Y%m%d%H%M%S")
+
+    final_url = page.url
+    parts = final_url.split("/")
+    current_timestamp_str = parts[4].replace("id_", "")
+
+    url_parts = url.split("/")
+    if len(url_parts) <= 4:
+        return True, page
+
+    initial_timestamp_str = url_parts[4].replace("id_", "")
+
+    try:
+        initial_date = datetime.strptime(initial_timestamp_str, "%Y%m%d%H%M%S")
+    except ValueError:
+        initial_date = datetime.strptime(initial_timestamp_str, "%Y")
+
+    actual_date = datetime.strptime(current_timestamp_str, "%Y%m%d%H%M%S")
+
+    valid = True
+    count = 1
+    response = page
+
+    while actual_date >= max_date:
+        adjusted_date = initial_date - relativedelta(years=count)
+        new_timestamp = adjusted_date.strftime("%Y%m%d%H%M%S")
+        adjusted_url = url.replace(initial_timestamp_str, new_timestamp)
+
+        response = requests.get(adjusted_url)
+        final_url = response.url
+        parts = final_url.split("/")
+
+        current_timestamp_str = parts[4].replace("id_", "")
+        actual_date = datetime.strptime(current_timestamp_str, "%Y%m%d%H%M%S")
+        valid = False
+        count += 1
+        if count >= 5:
+            break
+
+    return valid, response
